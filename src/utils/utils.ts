@@ -35,7 +35,7 @@ class EncodePKCE {
     const bytes = new Uint8Array(input);
     return this.urlEncodeBase64(window.btoa(String.fromCharCode(...bytes)));
   }
-  public async getCodes(num: number): Promise<Ipkcekeys> {
+  public async getCryptoCodes(num: number): Promise<Ipkcekeys> {
     try {
       const shaBuffer = await this.sha256(this.randomStr(num));
       const encoded = this.bufferToBase64UrlEncoded(shaBuffer);
@@ -46,6 +46,12 @@ class EncodePKCE {
     } catch (e) {
       throw e;
     }
+  }
+  public parseQueryString():string | null {
+    const params = (new URL(document.location.href)).searchParams
+    const saveCode = params.get("code")
+    window.history.pushState({}, document.title, window.location.pathname);
+    return saveCode
   }
 }
 
