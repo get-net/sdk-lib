@@ -1,6 +1,6 @@
 {
   "name": "@gtn.ee/sdk-lib-ts",
-  "version": "1.0.10",
+  "version": "1.0.31",
   "description": "Simple SDK library for PKCE and authentication",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
