@@ -1,5 +1,6 @@
 import axios from "axios";
 import EncodePKCE from './utils/utils';
+import SdkStore from "./store/store";
 
 interface IobjectData {
   def_key: string;
@@ -8,19 +9,21 @@ interface IobjectData {
 interface Iconfig {
     redirectUrl: string,
     clientId: string,
-    url: string,
+    baseUrl: string,
+    store: "localStorage" | "session" | "cookie"
 }
 
 window.onload = () => {
     if(window.location.href.includes("code")) {
-      const id = localStorage.getItem("client_state")
+      const id = instSdkStore().searchOrDelStorage("client_state")
       const copy = new GetNetSdk(undefined)
-      localStorage.removeItem("client_state")
-      copy.saveToken(<string>helperFn().parseQueryString(), <string>id)
+      instSdkStore().searchOrDelStorage("client_state", true)
+      copy.saveToken(<string>helperFnUtils().parseQueryString(), <string>id)
     }
 }
 
-const helperFn = () => new EncodePKCE()
+const helperFnUtils = () => new EncodePKCE()
+const instSdkStore = () => new SdkStore()
 
 class GetNetSdk {
   readonly config:Iconfig | undefined
@@ -31,7 +34,7 @@ class GetNetSdk {
 
   private async create_code_verifier(): Promise<IobjectData> {
     const num:number = Math.floor(Math.random() * 127) + 43
-    return helperFn().getCryptoCodes(num);
+    return helperFnUtils().getCryptoCodes(num);
   }
 
   public async oauth(): Promise<void> {
@@ -43,28 +46,33 @@ class GetNetSdk {
 
       const req = await this.create_code_verifier()
 
-      localStorage.setItem("pkce_code_verifier", req.def_key);
-      localStorage.setItem("client_state", this.config.clientId)
+      instSdkStore().init(this.config.store, req.def_key, "gtn.id.pkce_code_verifier")
+      instSdkStore().init(this.config.store, this.config.clientId, "client_state")
+      instSdkStore().init(this.config.store, this.config.store, "gtn.id.state")
 
-      window.location.href = `${this.config.url}`
-          +`?client_id=${this.config.clientId}`
-          +`&response_type=code`
-          +`&code_challenge=${req.sha256_key}`
-          +`&code_challenge_method=s256`
-          +`&redirect_uri=${this.config.redirectUrl}`
+
+      const searchParams = new URLSearchParams()
+      searchParams.append("client_id", this.config.clientId)
+      searchParams.append("response_type", "code")
+      searchParams.append("code_challenge", req.sha256_key)
+      searchParams.append("code_challenge_method", "s256")
+      searchParams.append("redirect_uri", this.config.redirectUrl)
+
+      window.location.href = `${this.config.baseUrl}?${searchParams.toString()}`
   }
 
   public async saveToken(code:string, id:string):Promise<void> {
+    const verCode = instSdkStore().searchOrDelStorage("gtn.id.pkce_code_verifier")
     if(typeof code === "object" || typeof id === "object") {
       throw new Error("Error with code auth")
     }
-    if(localStorage.getItem("pkce_code_verifier")) {
+    if(verCode) {
       const params = new URLSearchParams()
 
       params.append("grant_type", "authorization_code")
       params.append("client_id", id)
       params.append("code", code)
-      params.append("code_verifier", <string>localStorage.getItem("pkce_code_verifier"))
+      params.append("code_verifier", verCode)
 
       await axios.post(`https://test.id.gtn.ee/oauth/v3/token`
         ,params,{
@@ -73,9 +81,10 @@ class GetNetSdk {
         }
       }).then((data) => {
         if(data.data.access_token) {
-          localStorage.removeItem("pkce_code_verifier")
-          localStorage.setItem("access_token", data.data.access_token)
-          localStorage.setItem("refresh_token", data.data.refresh_token)
+          const state = instSdkStore().searchOrDelStorage("gtn.id.state")
+          instSdkStore().searchOrDelStorage("gtn.id.pkce_code_verifier", true)
+          instSdkStore().init(state, data.data.access_token, "gtn.id.access_token")
+          instSdkStore().init(state, data.data.refresh_token, "gtn.id.refresh_token")
         } else {
           throw new Error("Problems with access_token")
         }
@@ -85,29 +94,33 @@ class GetNetSdk {
     }
   }
   public getToken():string {
-    if(localStorage.getItem("access_token")) return <string>localStorage.getItem("access_token")
+    const tk = instSdkStore().searchOrDelStorage("gtn.id.access_token")
+    if(tk) return tk
     else throw new Error("nothing to returned")
   }
   public getRefreshToken():string {
-    if(localStorage.getItem("refresh_token")) return <string>localStorage.getItem("refresh_token")
+    const tk = instSdkStore().searchOrDelStorage("gtn.id.refresh_token")
+    if(tk) return tk
     else throw new Error("nothing to returned")
   }
   public async getUserInfo():Promise<any> {
-    if(localStorage.getItem("access_token")) {
+    const tk = instSdkStore().searchOrDelStorage("gtn.id.access_token")
+    if(tk) {
       const config = {
-        headers: {Authorization: `Bearer ${localStorage.getItem("access_token")}`}
+        headers: {Authorization: `Bearer ${tk}`}
       }
       const data = await axios.get("https://test.id.gtn.ee/oauth/userinfo/", config)
       return data.data
     }
   }
   public async refreshToken(id:string):Promise<void> {
-    if(localStorage.getItem("refresh_token")) {
+    const refToken = instSdkStore().searchOrDelStorage("gtn.id.refresh_token")
+    if(refToken) {
       const params = new URLSearchParams()
 
       params.append("grant_type", "refresh_token")
       params.append("client_id", id)
-      params.append("refresh_token", <string>localStorage.getItem("refresh_token"))
+      params.append("refresh_token", refToken)
 
       await axios.post("https://test.id.gtn.ee/oauth/token", params, {
         headers: {
@@ -115,8 +128,9 @@ class GetNetSdk {
         }
       }).then(data => {
         if(data.data.success) {
-          localStorage.setItem("access_token", data.data.result.access_token)
-          localStorage.setItem("refresh_token", data.data.result.refresh_token)
+          const state = instSdkStore().searchOrDelStorage("gtn.id.state")
+          instSdkStore().init(state, data.data.result.access_token, "gtn.id.access_token")
+          instSdkStore().init(state, data.data.result.refresh_token, "gtn.id.refresh_token")
         } else {
           throw new Error("Problems with request")
         }
