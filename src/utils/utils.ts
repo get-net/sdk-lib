@@ -1,11 +1,4 @@
-interface Icustom {
-  [key: string]: string;
-}
-
-interface Ipkcekeys {
-  def_key: string;
-  sha256_key: string;
-}
+import {Icustom, Ipkcekeys} from "../interfaces/interfaces";
 
 class EncodePKCE {
   protected defKey: string;
