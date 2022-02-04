@@ -1,7 +1,7 @@
 import axios from "axios";
 import EncodePKCE from './utils/utils';
 import SdkStore from "./store/store";
-import {Iconfig, IobjectData} from "./interfaces/interfaces";
+import {Iconfig, Ipkcekeys} from "./interfaces/interfaces";
 
 window.onload = () => {
     if (window.location.href.includes("code")) {
@@ -22,7 +22,7 @@ class GetNetSdk {
         this.config = config
     }
 
-    private static async create_code_verifier(): Promise<IobjectData> {
+    private static async create_code_verifier(): Promise<Ipkcekeys> {
         const num: number = Math.floor(Math.random() * 127) + 43
         return helperFnUtils().getCryptoCodes(num);
     }
@@ -100,11 +100,12 @@ class GetNetSdk {
 
     public async getUserInfo(): Promise<any> {
         const tk = instSdkStore().searchOrDelStorage("access_token")
-        if (tk) {
+        const url = instSdkStore().searchOrDelStorage("config_url")
+        if (tk && url) {
             const config = {
                 headers: {Authorization: `Bearer ${tk}`}
             }
-            const data = await axios.get("https://test.id.gtn.ee/oauth/userinfo/", config)
+            const data = await axios.get(`${url}/oauth/userinfo/`, config)
             return data.data
         }
     }

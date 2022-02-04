@@ -9,21 +9,22 @@
 #### Init class
 `const sdk = GetNetSdk(config)`
 #### Example config
-##### *Config* is not a required parameter, but if you specified it, all 4 parameters must be filled in.
+##### *Config* - конфиг является обязательным параметром.
 `const config = {
-    baseUrl: "https://test.id.gtn.ee/oauth/v3/authorize",
+    baseUrl: "https://test.id.gtn.ee",
     redirectUrl: "http://localhost:8080",
     clientId: <Your ID>
     store: <choice your storage>
 }`
 #### Required options
-`baseUrl - At the moment, this parameter must be taken from example config. (required parameter)`
+`baseUrl - На данный момент, нужно указывать "https://test.id.gtn.ee". (required parameter)`
 ####
-`redirectUrl - The url where you want to redirect after authentication. (required parameter)`
+`redirectUrl - URL на который произойдет редирект после аутентификации. (required parameter)`
 ####
-`clientId - ID, that you received when creating the applocation. (required parameter)`
+`clientId - ID, который вы получили при регистрации вашего приложения. (required parameter)`
 ####
-`store - At your choice, you can specify where to save your tokens. Options - localStorage, session, cookie. (required parameter)`
+`store - Хранилище, где вы хотите хранить свои ключи, на выбор есть 3 опции(options).`
+####Options - localStorage, session, cookie. (required parameter)
 ## 2)Oauth
 ### For this method config is required parameter!
 `const config = {...}`
@@ -31,34 +32,39 @@
 `const sdk = new GetNetSdk(config)`
 #####
 `sdk.oauth()`
-#### This method does not return anything, after authentication it will return you to the specified URL. (*redirectUrl* in config)
-#### And the storage you specified will store the keys for the further interaction.
+#### Этот метод ничего не возвращает. 
+####При вызове его произойдет аутентификация и редирект на URL который вы указали в config.
+#### Затем в выбранном вами хранилище появятся ключи.
 ## 3)Get Access token
-#### `!!!Warn:` This method will not work if yoy are not authenticated. 
+#### `!!!Warn:` Для корректной работы данного метода нужно пройти аутентификацию. 
+#### Также при инициализации класса необязательно передавать в него конфиг. 
 `const sdk = new GetNetSdk()`
 #####
 `const token = sdk.getToken()`
 #####
 `console.log(token)`
-#### This method will return access token. *string*
+#### Метод вернет access token. *string*
 ## 4)Get Refresh token
-#### `!!!Warn: `This method will not work if yoy are not authenticated.
+#### `!!!Warn:` Для корректной работы данного метода нужно пройти аутентификацию.
+#### Также при инициализации класса необязательно передавать в него конфиг.
 `const sdk = new GetNetSdk()`
 #####
 `const token = sdk.getRefreshToken()`
 #####
 `console.log(token)`
-#### This method will return refresh token. *string*
+#### Метод вернет refresh token. *string*
 ## 5)Refresh old tokens
-#### `!!!Warn:` This method will not work if yoy are not authenticated.
+#### `!!!Warn:` Для корректной работы данного метода нужно пройти аутентификацию.
+#### Также при инициализации класса необязательно передавать в него конфиг.
 `const sdk = new GetNetSdk()`
 #####
 `const token = sdk.refreshToken(<clientId>)`
-#### This method returns nothing, it refreshes the stale tokens in your store. (`clientid` - required parameter)
+#### Метод ничего не возвращает, обновляет ключи в вашем хранилище. (`clientid` - required parameter)
 ## 6)Get UserInfo
-#### `!!!Warn:` This method will not work if yoy are not authenticated.
+#### `!!!Warn:` Для корректной работы данного метода нужно пройти аутентификацию.
+#### Также при инициализации класса необязательно передавать в него конфиг.
 `const sdk = new GetNetSdk()`
 #####
 `const userInfo = sdk.getUserInfo()`
-#### `userInfo` - object that contains the data of the authorized person
+#### `userInfo` - возвращает объект в котором содержатся данные пользователя.
 

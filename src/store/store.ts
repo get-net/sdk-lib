@@ -1,27 +1,29 @@
+const org = "gtn.id"
+
 class SdkStore {
     private static localStorageSDK(name: string, key?: string, del?: boolean):void | string | boolean {
-        if (name && key) localStorage.setItem(`gtn.id.${name}`, <string>key)
-        if (name && !key && !del) return <string>localStorage.getItem(`gtn.id.${name}`)
+        if (name && key) localStorage.setItem(`${org}.${name}`, <string>key)
+        if (name && !key && !del) return <string>localStorage.getItem(`${org}.${name}`)
         if (name && del) {
-            localStorage.removeItem(`gtn.id.${name}`)
+            localStorage.removeItem(`${org}.${name}`)
             return true
         }
     }
 
     private static sessionSDK(name: string, key?: string, del?: boolean):void | string | boolean {
-        if (name && key) sessionStorage.setItem(`gtn.id.${name}`, <string>key)
-        if (name && !key && !del) return <string>sessionStorage.getItem(`gtn.id.${name}`)
+        if (name && key) sessionStorage.setItem(`${org}.${name}`, <string>key)
+        if (name && !key && !del) return <string>sessionStorage.getItem(`${org}.${name}`)
         if (name && del) {
-            sessionStorage.removeItem(`gtn.id.${name}`)
+            sessionStorage.removeItem(`${org}.${name}`)
             return true
         }
     }
 
     private static cookieSDK(name: string, key?: string, del?: boolean):void | string | boolean {
-        if (name && key) SdkStore.setCookie(`gtn.id.${name}`, <string>key)
-        if (name && !key && !del) return SdkStore.getCookie(`gtn.id.${name}`)
+        if (name && key) SdkStore.setCookie(`${org}.${name}`, <string>key)
+        if (name && !key && !del) return SdkStore.getCookie(`${org}.${name}`)
         if (name && del) {
-            SdkStore.setCookie(`gtn.id.${name}`, "", 0)
+            SdkStore.setCookie(`${org}.${name}`, "", 0)
             return true
         }
     }
@@ -53,9 +55,9 @@ class SdkStore {
 
     public searchOrDelStorage(name: string, del?: boolean) {
         let _v: string | boolean
-        if(typeof localStorage.getItem(`gtn.id.${name}`) === "string") {
+        if(typeof localStorage.getItem(`${org}.${name}`) === "string") {
             _v = <string | boolean>SdkStore.localStorageSDK(name, undefined, del)
-        } else if(typeof sessionStorage.getItem(`gtn.id.${name}`) === "string") {
+        } else if(typeof sessionStorage.getItem(`${org}.${name}`) === "string") {
             _v = <string | boolean>SdkStore.sessionSDK(name, undefined, del)
         } else {
             _v = <string | boolean>SdkStore.cookieSDK(name, undefined, del)

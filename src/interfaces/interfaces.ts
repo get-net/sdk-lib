@@ -1,8 +1,3 @@
-interface IobjectData {
-    def_key: string;
-    sha256_key: string;
-}
-
 interface Iconfig {
     redirectUrl: string,
     clientId: string,
@@ -19,4 +14,4 @@ interface Ipkcekeys {
     sha256_key: string;
 }
 
-export {IobjectData, Iconfig, Icustom, Ipkcekeys}
+export {Iconfig, Icustom, Ipkcekeys}
