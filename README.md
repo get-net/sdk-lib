@@ -24,7 +24,7 @@
 `clientId - ID, который вы получили при регистрации вашего приложения. (required parameter)`
 ####
 `store - Хранилище, где вы хотите хранить свои ключи, на выбор есть 3 опции(options).`
-####Options - localStorage, session, cookie. (required parameter)
+#### Options - localStorage, session, cookie. (required parameter)
 ## 2)Oauth
 ### For this method config is required parameter!
 `const config = {...}`
