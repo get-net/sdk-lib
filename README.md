@@ -1,5 +1,5 @@
 # Gen-Net SDK-lib
-### Version: 1.2.1
+### Version: 1.2.2
 
 ## 1)How to use?
 #### Npm install

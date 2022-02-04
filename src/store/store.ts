@@ -41,6 +41,7 @@ class SdkStore {
     private static getCookie(name: string) {
         const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
         if (match) return match[2];
+        else throw new Error("Error with get cookie")
     }
 
     public init(typeStore: string, key: string, name: string): void {
